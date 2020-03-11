@@ -23,12 +23,10 @@ export default class App extends Component {
 
   componentDidMount() {
     const prevContacts = localStorage.getItem("contacts");
-    if (prevContacts) {
-      this.setState({
-        contacts: JSON.parse(prevContacts)
-      });
-    }
+    const result = JSON.parse(prevContacts);
+    this.setState({contacts:result});
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevState.contacts !== this.state.contacts) {
       localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
@@ -61,12 +59,15 @@ export default class App extends Component {
   };
 
   removeContact = contactId => {
-    this.setState(prevState => {
-      return {
-        contacts: prevState.contacts.filter(contact => contact.id !== contactId)
-      };
-    });
-    this.setState({ filter: "" });
+
+    const contacts = this.state.contacts.filter(contact => contact.id !== contactId);
+    this.setState({contacts:contacts,filter: "" });
+    // this.setState(prevState => {
+    //   return {
+    //     contacts: prevState.contacts.filter(contact => contact.id !== contactId)
+    //   };
+    // });
+   
   };
 
   visibleContacts = () => {
@@ -77,8 +78,9 @@ export default class App extends Component {
   };
 
   render() {
-    const { filter } = this.state;
-    const visContacts = this.visibleContacts();
+    const { filter, contacts } = this.state;
+    const filteredContacts = this.visibleContacts();
+    console.log(contacts);
     return (
       <ThemeContext.Provider
         value={{
@@ -89,8 +91,8 @@ export default class App extends Component {
       >
         <Layout>
           <PhoneBook onAddContact={this.onAddContacts} />
-          <Filter value={filter} filterChange={this.changeFilter} />
-          <ContactList contacts={visContacts} onRemove={this.removeContact} />
+          {contacts.length > 0 && <Filter value={filter} filterChange={this.changeFilter} />} 
+          <ContactList contacts={filteredContacts} onRemove={this.removeContact} />
         </Layout>
       </ThemeContext.Provider>
     );
